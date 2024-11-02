@@ -25,6 +25,7 @@
   <div id="canvas-container"></div>
   <script>
     let bgImage;
+    let hoverText = "";
 
     function preload() {
       bgImage = loadImage('assets/background.png');
@@ -37,61 +38,62 @@
 
     function draw() {
       background(bgImage);
-      displayCoordinates();
       checkInteractiveZones();
+      displayHoverText();
       // Game code can go here
-    }
-
-    function displayCoordinates() {
-      fill(0);
-      textSize(16);
-      textAlign(LEFT, BOTTOM);
-      text(`x: ${mouseX}, y: ${mouseY}`, 10, height - 10);
     }
 
     function checkInteractiveZones() {
       let isHovering = false;
+      hoverText = "";
 
       // ALIEN Zone
       if (mouseX > 19 && mouseX < 193 && mouseY > 277.66 && mouseY < 690.66) {
         highlightZone(19, 277.66, 193 - 19, 690.66 - 277.66);
         isHovering = true;
+        hoverText = "A fellow crew member, doing... something mysterious. Should you check what they're up to?";
       }
 
       // ABDUCTEE Zone
       if (mouseX > 399 && mouseX < 582 && mouseY > 372.66 && mouseY < 694.66) {
         highlightZone(399, 372.66, 582 - 399, 694.66 - 372.66);
         isHovering = true;
+        hoverText = "This abductee seems oddly calm—maybe they're just enjoying the free ride?";
       }
 
       // NIGHTLIGHT Zone
       if (mouseX > 320 && mouseX < 611 && mouseY > 124 && mouseY < 201) {
         highlightZone(320, 124, 611 - 320, 201 - 124);
         isHovering = true;
+        hoverText = "A strange glowing light beaming down on the abductee. It looks suspiciously dramatic.";
       }
 
       // RURAL_MONITOR Zone
       if (mouseX > 148 && mouseX < 337 && mouseY > 266 && mouseY < 420) {
         highlightZone(148, 266, 337 - 148, 420 - 266);
         isHovering = true;
+        hoverText = "A monitor showing a peaceful scene of trees and a lake. Perhaps it's watching for... rogue deer?";
       }
 
       // SUBURB_MONITOR Zone
       if (mouseX > 603 && mouseX < 836 && mouseY > 285 && mouseY < 421) {
         highlightZone(603, 285, 836 - 603, 421 - 285);
         isHovering = true;
+        hoverText = "Who knew suburbia was this interesting? This monitor definitely seems to think so.";
       }
 
       // STRANGE_OBJECT Zone
       if (mouseX > 74 && mouseX < 199 && mouseY > 700 && mouseY < 773) {
         highlightZone(74, 700, 199 - 74, 773 - 700);
         isHovering = true;
+        hoverText = "It's shiny, strangely enticing, and you kind of want to touch it. What's the worst that could happen?";
       }
 
       // CONTROL_PANEL Zone
       if (mouseX > 84 && mouseX < 861 && mouseY > 868 && mouseY < 991) {
         highlightZone(84, 868, 861 - 84, 991 - 868);
         isHovering = true;
+        hoverText = "An intimidatingly large number of buttons. Surely pressing one couldn't hurt... right?";
       }
 
       // Change cursor to pointer if hovering over an interactive zone
@@ -107,6 +109,18 @@
       stroke('lightgreen');
       strokeWeight(2);
       rect(x, y, w, h);
+    }
+
+    function displayHoverText() {
+      if (hoverText !== "") {
+        fill(255, 255, 0, 200); // Yellow background with some transparency
+        noStroke();
+        rect(10, 10, textWidth(hoverText) + 20, 40, 5); // Background box with padding and rounded corners
+        fill(0);
+        textSize(16);
+        textAlign(LEFT, CENTER);
+        text(hoverText, 20, 30);
+      }
     }
   </script>
 </body>

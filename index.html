@@ -37,7 +37,15 @@
 
     function draw() {
       background(bgImage);
+      displayCoordinates();
       // Game code can go here
+    }
+
+    function displayCoordinates() {
+      fill(255);
+      textSize(16);
+      textAlign(LEFT, BOTTOM);
+      text(`x: ${mouseX}, y: ${mouseY}`, 10, height - 10);
     }
   </script>
 </body>

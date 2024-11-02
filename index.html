@@ -38,14 +38,75 @@
     function draw() {
       background(bgImage);
       displayCoordinates();
+      checkInteractiveZones();
       // Game code can go here
     }
 
     function displayCoordinates() {
-      fill(255);
+      fill(0);
       textSize(16);
       textAlign(LEFT, BOTTOM);
       text(`x: ${mouseX}, y: ${mouseY}`, 10, height - 10);
+    }
+
+    function checkInteractiveZones() {
+      let isHovering = false;
+
+      // ALIEN Zone
+      if (mouseX > 19 && mouseX < 193 && mouseY > 277.66 && mouseY < 690.66) {
+        highlightZone(19, 277.66, 193 - 19, 690.66 - 277.66);
+        isHovering = true;
+      }
+
+      // ABDUCTEE Zone
+      if (mouseX > 399 && mouseX < 582 && mouseY > 372.66 && mouseY < 694.66) {
+        highlightZone(399, 372.66, 582 - 399, 694.66 - 372.66);
+        isHovering = true;
+      }
+
+      // NIGHTLIGHT Zone
+      if (mouseX > 320 && mouseX < 611 && mouseY > 124 && mouseY < 201) {
+        highlightZone(320, 124, 611 - 320, 201 - 124);
+        isHovering = true;
+      }
+
+      // RURAL_MONITOR Zone
+      if (mouseX > 148 && mouseX < 337 && mouseY > 266 && mouseY < 420) {
+        highlightZone(148, 266, 337 - 148, 420 - 266);
+        isHovering = true;
+      }
+
+      // SUBURB_MONITOR Zone
+      if (mouseX > 603 && mouseX < 836 && mouseY > 285 && mouseY < 421) {
+        highlightZone(603, 285, 836 - 603, 421 - 285);
+        isHovering = true;
+      }
+
+      // STRANGE_OBJECT Zone
+      if (mouseX > 74 && mouseX < 199 && mouseY > 700 && mouseY < 773) {
+        highlightZone(74, 700, 199 - 74, 773 - 700);
+        isHovering = true;
+      }
+
+      // CONTROL_PANEL Zone
+      if (mouseX > 84 && mouseX < 861 && mouseY > 868 && mouseY < 991) {
+        highlightZone(84, 868, 861 - 84, 991 - 868);
+        isHovering = true;
+      }
+
+      // Change cursor to pointer if hovering over an interactive zone
+      if (isHovering) {
+        cursor('pointer');
+      } else {
+        cursor('default');
+      }
+    }
+
+    function highlightZone(x, y, w, h) {
+      noFill();
+      stroke('lightgreen');
+      strokeWeight(2);
+      rect(x, y, w, h);
     }
   </script>
 </body>

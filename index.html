@@ -26,6 +26,45 @@
   <script>
     let bgImage;
     let hoverText = "";
+    let isHovering = false;
+
+    const zones = [
+      {
+        name: "ALIEN",
+        x1: 19, y1: 277.66, x2: 193, y2: 690.66,
+        text: "A fellow crew member, doing... something mysterious. Should you check what they're up to?"
+      },
+      {
+        name: "ABDUCTEE",
+        x1: 399, y1: 372.66, x2: 582, y2: 694.66,
+        text: "This abductee seems oddly calm—maybe they're just enjoying the free ride?"
+      },
+      {
+        name: "NIGHTLIGHT",
+        x1: 320, y1: 124, x2: 611, y2: 201,
+        text: "A strange glowing light beaming down on the abductee. It looks suspiciously dramatic."
+      },
+      {
+        name: "RURAL_MONITOR",
+        x1: 148, y1: 266, x2: 337, y2: 420,
+        text: "A monitor showing a peaceful scene of trees and a lake. Perhaps it's watching for... rogue deer?"
+      },
+      {
+        name: "SUBURB_MONITOR",
+        x1: 603, y1: 285, x2: 836, y2: 421,
+        text: "Who knew suburbia was this interesting? This monitor definitely seems to think so."
+      },
+      {
+        name: "STRANGE_OBJECT",
+        x1: 74, y1: 700, x2: 199, y2: 773,
+        text: "It's shiny, strangely enticing, and you kind of want to touch it. What's the worst that could happen?"
+      },
+      {
+        name: "CONTROL_PANEL",
+        x1: 84, y1: 868, x2: 861, y2: 991,
+        text: "An intimidatingly large number of buttons. Surely pressing one couldn't hurt... right?"
+      }
+    ];
 
     function preload() {
       bgImage = loadImage('assets/background.png');
@@ -34,66 +73,27 @@
     function setup() {
       let canvas = createCanvas(1000, 1000);
       canvas.parent('canvas-container');
+      image(bgImage, 0, 0, width, height); // Draw background once if it's static
     }
 
     function draw() {
-      background(bgImage);
+      clear();
+      image(bgImage, 0, 0, width, height); // Redraw background each frame
       checkInteractiveZones();
       displayHoverText();
       // Game code can go here
     }
 
     function checkInteractiveZones() {
-      let isHovering = false;
+      isHovering = false;
       hoverText = "";
 
-      // ALIEN Zone
-      if (mouseX > 19 && mouseX < 193 && mouseY > 277.66 && mouseY < 690.66) {
-        highlightZone(19, 277.66, 193 - 19, 690.66 - 277.66);
-        isHovering = true;
-        hoverText = "A fellow crew member, doing... something mysterious. Should you check what they're up to?";
-      }
-
-      // ABDUCTEE Zone
-      if (mouseX > 399 && mouseX < 582 && mouseY > 372.66 && mouseY < 694.66) {
-        highlightZone(399, 372.66, 582 - 399, 694.66 - 372.66);
-        isHovering = true;
-        hoverText = "This abductee seems oddly calm—maybe they're just enjoying the free ride?";
-      }
-
-      // NIGHTLIGHT Zone
-      if (mouseX > 320 && mouseX < 611 && mouseY > 124 && mouseY < 201) {
-        highlightZone(320, 124, 611 - 320, 201 - 124);
-        isHovering = true;
-        hoverText = "A strange glowing light beaming down on the abductee. It looks suspiciously dramatic.";
-      }
-
-      // RURAL_MONITOR Zone
-      if (mouseX > 148 && mouseX < 337 && mouseY > 266 && mouseY < 420) {
-        highlightZone(148, 266, 337 - 148, 420 - 266);
-        isHovering = true;
-        hoverText = "A monitor showing a peaceful scene of trees and a lake. Perhaps it's watching for... rogue deer?";
-      }
-
-      // SUBURB_MONITOR Zone
-      if (mouseX > 603 && mouseX < 836 && mouseY > 285 && mouseY < 421) {
-        highlightZone(603, 285, 836 - 603, 421 - 285);
-        isHovering = true;
-        hoverText = "Who knew suburbia was this interesting? This monitor definitely seems to think so.";
-      }
-
-      // STRANGE_OBJECT Zone
-      if (mouseX > 74 && mouseX < 199 && mouseY > 700 && mouseY < 773) {
-        highlightZone(74, 700, 199 - 74, 773 - 700);
-        isHovering = true;
-        hoverText = "It's shiny, strangely enticing, and you kind of want to touch it. What's the worst that could happen?";
-      }
-
-      // CONTROL_PANEL Zone
-      if (mouseX > 84 && mouseX < 861 && mouseY > 868 && mouseY < 991) {
-        highlightZone(84, 868, 861 - 84, 991 - 868);
-        isHovering = true;
-        hoverText = "An intimidatingly large number of buttons. Surely pressing one couldn't hurt... right?";
+      for (let zone of zones) {
+        if (mouseX > zone.x1 && mouseX < zone.x2 && mouseY > zone.y1 && mouseY < zone.y2) {
+          highlightZone(zone.x1, zone.y1, zone.x2 - zone.x1, zone.y2 - zone.y1);
+          isHovering = true;
+          hoverText = zone.text;
+        }
       }
 
       // Change cursor to pointer if hovering over an interactive zone
@@ -113,10 +113,10 @@
 
     function displayHoverText() {
       if (hoverText !== "") {
-        fill(255, 255, 0, 200); // Yellow background with some transparency
+        fill(0, 0, 0, 200); // Black background with some transparency
         noStroke();
         rect(10, 10, textWidth(hoverText) + 20, 40, 5); // Background box with padding and rounded corners
-        fill(0);
+        fill(255); // White text color for better contrast
         textSize(16);
         textAlign(LEFT, CENTER);
         text(hoverText, 20, 30);

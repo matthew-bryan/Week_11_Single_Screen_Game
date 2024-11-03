@@ -26,9 +26,21 @@
       padding: 15px;
       background-color: rgba(0, 0, 0, 0.8);
       color: white;
-      font-size: 20px; font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      font-family: 'Orbitron', sans-serif;
       border-radius: 5px;
       display: none;
+    }
+    #score-display {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 30px;
+      font-family: 'Orbitron', sans-serif;
+      color: #00ff00;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 5px;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
@@ -37,6 +49,7 @@
 <body>
   <div id="canvas-container"></div>
   <div id="examine-window"></div>
+  <div id="score-display">FAVORABILITY: ALIEN: 0 | HUMAN: 0</div>
   <script>
     let bgImage;
     let hoverText = "";
@@ -61,8 +74,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Help the alien with the controls", score: 'alien' },
-          { text: "Distract the alien by asking questions", score: 'human' }
+          { text: "Provide moral support by patting them on the back", score: 'alien', outcome: "The alien almost loses their balance and glares at you for a moment, but then sighs and gives you a thumbs-up. You sense they now tolerate you slightly more." },
+          { text: "Convince the crew to give the abductee a cup of water", score: 'human', outcome: "The abductee looks grateful as they take a hesitant sip from the strange cup. Hydration helps—they now look only mildly petrified instead of entirely." }
         ]
       },
       {
@@ -77,8 +90,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Calm the abductee with alien technology", score: 'alien' },
-          { text: "Talk to the abductee and reassure them", score: 'human' }
+          { text: "Calm the abductee with alien technology", score: 'alien', outcome: "PLACEHOLDER: Alien technology calms the abductee." },
+          { text: "Talk to the abductee and reassure them", score: 'human', outcome: "PLACEHOLDER: You reassure the abductee." }
         ]
       },
       {
@@ -93,8 +106,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Adjust the light to focus more", score: 'alien' },
-          { text: "Turn the light away to make the abductee more comfortable", score: 'human' }
+          { text: "Adjust the light to focus more", score: 'alien', outcome: "PLACEHOLDER: You adjust the light." },
+          { text: "Turn the light away to make the abductee more comfortable", score: 'human', outcome: "PLACEHOLDER: You make the abductee more comfortable." }
         ]
       },
       {
@@ -109,8 +122,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Enhance the image to see more", score: 'alien' },
-          { text: "Ignore it and enjoy the peaceful scene", score: 'human' }
+          { text: "Enhance the image to see more", score: 'alien', outcome: "PLACEHOLDER: You enhance the image." },
+          { text: "Ignore it and enjoy the peaceful scene", score: 'human', outcome: "PLACEHOLDER: You enjoy the peaceful scene." }
         ]
       },
       {
@@ -125,8 +138,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Zoom in on the dog", score: 'alien' },
-          { text: "Wave back at the screen", score: 'human' }
+          { text: "Zoom in on the dog", score: 'alien', outcome: "PLACEHOLDER: You zoom in on the dog." },
+          { text: "Wave back at the screen", score: 'human', outcome: "PLACEHOLDER: You wave at the screen." }
         ]
       },
       {
@@ -141,8 +154,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Touch the object to see what happens", score: 'alien' },
-          { text: "Back away slowly", score: 'human' }
+          { text: "Touch the object to see what happens", score: 'alien', outcome: "PLACEHOLDER: You touch the object." },
+          { text: "Back away slowly", score: 'human', outcome: "PLACEHOLDER: You back away." }
         ]
       },
       {
@@ -157,8 +170,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Press the flashing button", score: 'alien' },
-          { text: "Look for an instruction manual", score: 'human' }
+          { text: "Press the flashing button", score: 'alien', outcome: "PLACEHOLDER: You press the button." },
+          { text: "Look for an instruction manual", score: 'human', outcome: "PLACEHOLDER: You look for the manual." }
         ]
       }
     ];
@@ -172,10 +185,8 @@
       canvas.parent('canvas-container');
       image(bgImage, 0, 0, width, height); // Draw background once if it's static
       examineWindow = select('#examine-window');
-      let scoreDisplay = createDiv('ALIEN: 0 | HUMAN: 0');
-      scoreDisplay.position(width - 180, height - 40);
-      scoreDisplay.style('color', 'white');
-      scoreDisplay.id('score-display');
+      let scoreDisplay = select('#score-display');
+      updateScoreDisplay();
     }
 
     function draw() {
@@ -258,10 +269,14 @@
             text: ""
           };
           options = [
-            { label: "EXAMINE", action: () => showExamineText(zone) },
-            { label: "INTERACT", action: () => showInteractOptions(zone) },
-            { label: "CANCEL", action: () => cancelMessage() }
+            { label: "EXAMINE", action: () => showExamineText(zone) }
           ];
+
+          if (!zone.hasInteracted) {
+            options.push({ label: "INTERACT", action: () => showInteractOptions(zone) });
+          }
+
+          options.push({ label: "CANCEL", action: () => cancelMessage() });
           return;
         }
       }
@@ -334,7 +349,8 @@
             }
             zone.hasInteracted = true;
             updateScoreDisplay();
-            cancelMessage();
+            examineWindow.html(choice.outcome); // Display interaction outcome in examine window
+            examineWindow.style('display', 'block');
           }
         };
       });
@@ -348,7 +364,7 @@
 
     function updateScoreDisplay() {
       let scoreDisplay = select('#score-display');
-      scoreDisplay.html(`ALIEN: ${alienScore} | HUMAN: ${humanScore}`);
+      scoreDisplay.html(`FAVORABILITY: ALIEN: ${alienScore} | HUMAN: ${humanScore}`);
     }
 
     function checkEndCondition() {
@@ -361,4 +377,3 @@
   </script>
 </body>
 </html>
-

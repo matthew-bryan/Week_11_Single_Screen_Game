@@ -18,17 +18,25 @@
       justify-content: center;
       align-items: center;
     }
-    .option-button {
-      fill: white;
-      stroke: black;
-      stroke-weight: 2;
-      text-align: center;
+    #examine-window {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 300px;
+      padding: 15px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 20px; font-family: 'Orbitron', sans-serif;
+      border-radius: 5px;
+      display: none;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="canvas-container"></div>
+  <div id="examine-window"></div>
   <script>
     let bgImage;
     let hoverText = "";
@@ -36,42 +44,50 @@
     let messageBubble = null;
     let options = [];
     let cachedOptionWidths = {};
+    let examineWindow;
 
     const zones = [
       {
         name: "ALIEN",
         x1: 19, y1: 277.66, x2: 193, y2: 690.66,
-        text: "A fellow crew member, doing... something mysterious. Should you check what they're up to?"
+        text: "A fellow crew member, doing... something mysterious. Should you check what they're up to?",
+        examineText: "The alien looks busy pressing buttons and muttering something about 'galactic coordinates.' They’re either saving the day or ordering takeout—hard to tell."
       },
       {
         name: "ABDUCTEE",
         x1: 399, y1: 372.66, x2: 582, y2: 694.66,
-        text: "This abductee seems oddly calm—maybe they're just enjoying the free ride?"
+        text: "This abductee seems oddly calm—maybe they're just enjoying the free ride?",
+        examineText: "The abductee is staring blankly, almost like they've done this before. Maybe they're hoping for a frequent abduction loyalty card?"
       },
       {
         name: "NIGHTLIGHT",
         x1: 320, y1: 124, x2: 611, y2: 201,
-        text: "A strange glowing light beaming down on the abductee. It looks suspiciously dramatic."
+        text: "A strange glowing light beaming down on the abductee. It looks suspiciously dramatic.",
+        examineText: "The mysterious light beams down like it's auditioning for a role in a sci-fi movie. It’s got the whole 'dramatic flair' thing nailed down."
       },
       {
         name: "RURAL_MONITOR",
         x1: 148, y1: 266, x2: 337, y2: 420,
-        text: "A monitor showing a peaceful scene of trees and a lake. Perhaps it's watching for... rogue deer?"
+        text: "A monitor showing a peaceful scene of trees and a lake. Perhaps it's watching for... rogue deer?",
+        examineText: "The rural monitor shows a serene view of trees and water. Nothing seems out of place, but you get the feeling you're missing something. Is there something hiding?"
       },
       {
         name: "SUBURB_MONITOR",
         x1: 603, y1: 285, x2: 836, y2: 421,
-        text: "Who knew suburbia was this interesting? This monitor definitely seems to think so."
+        text: "Who knew suburbia was this interesting? This monitor definitely seems to think so.",
+        examineText: "The suburb monitor shows someone walking a dog. It’s quiet and calm, but the dog keeps looking directly at the camera... almost like it knows you’re watching."
       },
       {
         name: "STRANGE_OBJECT",
         x1: 74, y1: 700, x2: 199, y2: 773,
-        text: "It's shiny, strangely enticing, and you kind of want to touch it. What's the worst that could happen?"
+        text: "It's shiny, strangely enticing, and you kind of want to touch it. What's the worst that could happen?",
+        examineText: "The object glimmers invitingly, almost as if it’s calling out to you. It's covered in strange markings that seem to pulse when you get close—probably best not to touch it... right?"
       },
       {
         name: "CONTROL_PANEL",
         x1: 84, y1: 868, x2: 861, y2: 991,
-        text: "An intimidatingly large number of buttons. Surely pressing one couldn't hurt... right?"
+        text: "An intimidatingly large number of buttons. Surely pressing one couldn't hurt... right?",
+        examineText: "Buttons of all shapes and sizes, some flashing, others dull. There’s one button larger than the rest, almost inviting you to press it. What’s the worst that could happen?"
       }
     ];
 
@@ -83,6 +99,7 @@
       let canvas = createCanvas(1000, 1000);
       canvas.parent('canvas-container');
       image(bgImage, 0, 0, width, height); // Draw background once if it's static
+      examineWindow = select('#examine-window');
     }
 
     function draw() {
@@ -240,7 +257,8 @@
     }
 
     function showExamineText(zone) {
-      messageBubble.text = "You examine the " + zone.name.toLowerCase() + ". Placeholder text for flavor.";
+      examineWindow.html(zone.examineText);
+      examineWindow.style('display', 'block');
       options = []; // Remove options after selecting EXAMINE
     }
 
@@ -252,6 +270,8 @@
     function cancelMessage() {
       messageBubble = null;
       options = [];
+      examineWindow.style('display', 'none');
     }
   </script>
-</body
+</body>
+</html>

@@ -32,7 +32,7 @@
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="canvas-container"></div>
@@ -45,6 +45,8 @@
     let options = [];
     let cachedOptionWidths = {};
     let examineWindow;
+    let alienScore = 0;
+    let humanScore = 0;
 
     const zones = [
       {
@@ -56,6 +58,11 @@
           "The alien seems to be arguing with the controls. You hear something about 'hyperspace detours' and 'astro-navigation manuals.' Maybe they're lost?",
           "The alien glances at you briefly before focusing back on the buttons. They seem to be in deep thought, or maybe they're just daydreaming about space pizza.",
           "The alien is furiously typing—perhaps composing an intergalactic tweet? You’re not sure, but it seems pretty intense."
+        ],
+        hasInteracted: false,
+        interactChoices: [
+          { text: "Help the alien with the controls", score: 'alien' },
+          { text: "Distract the alien by asking questions", score: 'human' }
         ]
       },
       {
@@ -67,6 +74,11 @@
           "The abductee appears to be humming a tune, blissfully unaware. Either they've accepted their fate or they're really into this abduction vibe.",
           "The abductee gives a thumbs up... to nobody in particular. They seem to be having the time of their life, almost like they're on an amusement park ride.",
           "The abductee is nodding off. Maybe this whole experience just isn't that exciting for them anymore."
+        ],
+        hasInteracted: false,
+        interactChoices: [
+          { text: "Calm the abductee with alien technology", score: 'alien' },
+          { text: "Talk to the abductee and reassure them", score: 'human' }
         ]
       },
       {
@@ -78,6 +90,11 @@
           "The light flickers slightly, almost like it's trying to send a signal. Or maybe it's just trying to be spooky for effect.",
           "The beam seems to be adjusting itself—trying to find the most dramatic angle to shine on the abductee. It’s quite the perfectionist.",
           "The light seems to be pulsing to an unknown rhythm. If only you knew what station it's tuned into—it's got a nice beat!"
+        ],
+        hasInteracted: false,
+        interactChoices: [
+          { text: "Adjust the light to focus more", score: 'alien' },
+          { text: "Turn the light away to make the abductee more comfortable", score: 'human' }
         ]
       },
       {
@@ -89,6 +106,11 @@
           "The rural monitor shows a deer, standing perfectly still, staring right at the camera. It’s unsettling, like it knows more than it should.",
           "A gentle breeze rustles the leaves. Nothing else happens. Just peaceful... or perhaps a bit too peaceful?",
           "The screen blinks briefly, and for a split second, you think you see something move in the background. Was that a shadow or just your imagination?"
+        ],
+        hasInteracted: false,
+        interactChoices: [
+          { text: "Enhance the image to see more", score: 'alien' },
+          { text: "Ignore it and enjoy the peaceful scene", score: 'human' }
         ]
       },
       {
@@ -100,6 +122,11 @@
           "The dog on the screen has now sat down, but its eyes are still on the camera. It's like it's trying to communicate something important... or it's just hungry.",
           "The suburbanite is now watering plants, completely unaware of being watched. The plants look unusually well-watered though... suspiciously so.",
           "A kid on a bicycle zooms by, seemingly making eye contact with the camera. For a moment, you feel like they know something you don't."
+        ],
+        hasInteracted: false,
+        interactChoices: [
+          { text: "Zoom in on the dog", score: 'alien' },
+          { text: "Wave back at the screen", score: 'human' }
         ]
       },
       {
@@ -111,6 +138,11 @@
           "The object emits a faint hum. It’s definitely not just a paperweight. Or if it is, it's a very ambitious one.",
           "The markings on the object seem to shift slightly as you watch. Either it’s magic, or your eyes are playing tricks on you.",
           "It’s shiny, and now you notice it's also slightly warm to the touch. It’s probably fine, right? Who doesn’t like a little warmth?"
+        ],
+        hasInteracted: false,
+        interactChoices: [
+          { text: "Touch the object to see what happens", score: 'alien' },
+          { text: "Back away slowly", score: 'human' }
         ]
       },
       {
@@ -122,6 +154,11 @@
           "You notice a button labeled 'Do Not Press.' It’s practically begging to be pressed. Why do they even make buttons like this?",
           "The panel emits a soft hum, almost like it's waiting for you to do something. A green light blinks cheerily. It seems... encouraging?",
           "You spot a lever that looks completely out of place—like it was added as an afterthought. You can't help but wonder what it does."
+        ],
+        hasInteracted: false,
+        interactChoices: [
+          { text: "Press the flashing button", score: 'alien' },
+          { text: "Look for an instruction manual", score: 'human' }
         ]
       }
     ];
@@ -135,6 +172,10 @@
       canvas.parent('canvas-container');
       image(bgImage, 0, 0, width, height); // Draw background once if it's static
       examineWindow = select('#examine-window');
+      let scoreDisplay = createDiv('ALIEN: 0 | HUMAN: 0');
+      scoreDisplay.position(width - 180, height - 40);
+      scoreDisplay.style('color', 'white');
+      scoreDisplay.id('score-display');
     }
 
     function draw() {
@@ -144,6 +185,7 @@
       displayHoverText();
       displayMessageBubble();
       displayOptions();
+      checkEndCondition();
     }
 
     function checkInteractiveZones() {
@@ -264,26 +306,6 @@
       }
     }
 
-    function mouseClicked() {
-      if (options.length > 0) {
-        let startY = messageBubble.y - 20;
-        for (let i = 0; i < options.length; i++) {
-          let option = options[i];
-          let optionWidth = getCachedOptionWidth(option.label);
-          let optionHeight = 30;
-          if (
-            mouseX > messageBubble.x &&
-            mouseX < messageBubble.x + optionWidth &&
-            mouseY > startY + i * (optionHeight + 10) &&
-            mouseY < startY + i * (optionHeight + 10) + optionHeight
-          ) {
-            option.action();
-            return;
-          }
-        }
-      }
-    }
-
     function getCachedOptionWidth(label) {
       if (!cachedOptionWidths[label]) {
         cachedOptionWidths[label] = textWidth(label) + 20;
@@ -299,8 +321,23 @@
     }
 
     function showInteractOptions(zone) {
-      messageBubble.text = "You interact with the " + zone.name.toLowerCase() + ". Placeholder text for interaction.";
-      options = []; // Remove options after selecting INTERACT
+      if (zone.hasInteracted) return;
+
+      options = zone.interactChoices.map(choice => {
+        return {
+          label: choice.text,
+          action: () => {
+            if (choice.score === 'alien') {
+              alienScore++;
+            } else if (choice.score === 'human') {
+              humanScore++;
+            }
+            zone.hasInteracted = true;
+            updateScoreDisplay();
+            cancelMessage();
+          }
+        };
+      });
     }
 
     function cancelMessage() {
@@ -308,6 +345,20 @@
       options = [];
       examineWindow.style('display', 'none');
     }
+
+    function updateScoreDisplay() {
+      let scoreDisplay = select('#score-display');
+      scoreDisplay.html(`ALIEN: ${alienScore} | HUMAN: ${humanScore}`);
+    }
+
+    function checkEndCondition() {
+      if (zones.every(zone => zone.hasInteracted)) {
+        let endingMessage = alienScore > humanScore ? "ALIEN ENDING: You embraced your alien nature!" : "HUMAN ENDING: You found a human connection.";
+        examineWindow.html(endingMessage);
+        examineWindow.style('display', 'block');
+      }
+    }
   </script>
 </body>
 </html>
+

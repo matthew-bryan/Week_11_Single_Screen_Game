@@ -18,6 +18,12 @@
       justify-content: center;
       align-items: center;
     }
+    .option-button {
+      fill: white;
+      stroke: black;
+      stroke-weight: 2;
+      text-align: center;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
@@ -27,6 +33,9 @@
     let bgImage;
     let hoverText = "";
     let isHovering = false;
+    let messageBubble = null;
+    let options = [];
+    let cachedOptionWidths = {};
 
     const zones = [
       {
@@ -81,7 +90,8 @@
       image(bgImage, 0, 0, width, height); // Redraw background each frame
       checkInteractiveZones();
       displayHoverText();
-      // Game code can go here
+      displayMessageBubble();
+      displayOptions();
     }
 
     function checkInteractiveZones() {
@@ -89,7 +99,7 @@
       hoverText = "";
 
       for (let zone of zones) {
-        if (mouseX > zone.x1 && mouseX < zone.x2 && mouseY > zone.y1 && mouseY < zone.y2) {
+        if (isMouseOverZone(zone)) {
           highlightZone(zone.x1, zone.y1, zone.x2 - zone.x1, zone.y2 - zone.y1);
           isHovering = true;
           hoverText = zone.text;
@@ -97,11 +107,15 @@
       }
 
       // Change cursor to pointer if hovering over an interactive zone
-      if (isHovering) {
+      if (isHovering && options.length === 0) {
         cursor('pointer');
       } else {
         cursor('default');
       }
+    }
+
+    function isMouseOverZone(zone) {
+      return mouseX > zone.x1 && mouseX < zone.x2 && mouseY > zone.y1 && mouseY < zone.y2;
     }
 
     function highlightZone(x, y, w, h) {
@@ -112,7 +126,7 @@
     }
 
     function displayHoverText() {
-      if (hoverText !== "") {
+      if (hoverText !== "" && options.length === 0) {
         fill(0, 0, 0, 200); // Black background with some transparency
         noStroke();
         rect(10, 10, textWidth(hoverText) + 20, 40, 5); // Background box with padding and rounded corners
@@ -122,6 +136,122 @@
         text(hoverText, 20, 30);
       }
     }
+
+    function mousePressed() {
+      if (options.length > 0) {
+        let startY = messageBubble.y - 20;
+        for (let i = 0; i < options.length; i++) {
+          let option = options[i];
+          let optionWidth = getCachedOptionWidth(option.label);
+          let optionHeight = 30;
+          if (
+            mouseX > messageBubble.x &&
+            mouseX < messageBubble.x + optionWidth &&
+            mouseY > startY + i * (optionHeight + 10) &&
+            mouseY < startY + i * (optionHeight + 10) + optionHeight
+          ) {
+            option.action();
+            return;
+          }
+        }
+      }
+
+      for (let zone of zones) {
+        if (isMouseOverZone(zone)) {
+          messageBubble = {
+            x: mouseX,
+            y: mouseY,
+            text: ""
+          };
+          options = [
+            { label: "EXAMINE", action: () => showExamineText(zone) },
+            { label: "INTERACT", action: () => showInteractOptions(zone) },
+            { label: "CANCEL", action: () => cancelMessage() }
+          ];
+          return;
+        }
+      }
+    }
+
+    function displayMessageBubble() {
+      if (messageBubble) {
+        fill(255, 255, 255, 220); // White background with some transparency
+        stroke(0);
+        strokeWeight(2);
+        rect(messageBubble.x, messageBubble.y - 60, 200, 40, 5); // Message bubble
+        fill(0); // Black text color
+        textSize(16);
+        textAlign(LEFT, CENTER);
+        text("Select an action:", messageBubble.x + 10, messageBubble.y - 40);
+      }
+    }
+
+    function displayOptions() {
+      if (options.length > 0) {
+        let startY = messageBubble.y - 20;
+        for (let i = 0; i < options.length; i++) {
+          let option = options[i];
+          let optionWidth = getCachedOptionWidth(option.label);
+          let optionHeight = 30;
+          if (
+            mouseX > messageBubble.x &&
+            mouseX < messageBubble.x + optionWidth &&
+            mouseY > startY + i * (optionHeight + 10) &&
+            mouseY < startY + i * (optionHeight + 10) + optionHeight
+          ) {
+            cursor('pointer');
+          }
+          fill(200);
+          stroke(0);
+          rect(messageBubble.x, startY + i * (optionHeight + 10), optionWidth, optionHeight, 5);
+          fill(0);
+          noStroke();
+          textAlign(LEFT, CENTER);
+          text(option.label, messageBubble.x + 10, startY + i * (optionHeight + 10) + optionHeight / 2);
+        }
+      }
+    }
+
+    function mouseClicked() {
+      if (options.length > 0) {
+        let startY = messageBubble.y - 20;
+        for (let i = 0; i < options.length; i++) {
+          let option = options[i];
+          let optionWidth = getCachedOptionWidth(option.label);
+          let optionHeight = 30;
+          if (
+            mouseX > messageBubble.x &&
+            mouseX < messageBubble.x + optionWidth &&
+            mouseY > startY + i * (optionHeight + 10) &&
+            mouseY < startY + i * (optionHeight + 10) + optionHeight
+          ) {
+            option.action();
+            return;
+          }
+        }
+      }
+    }
+
+    function getCachedOptionWidth(label) {
+      if (!cachedOptionWidths[label]) {
+        cachedOptionWidths[label] = textWidth(label) + 20;
+      }
+      return cachedOptionWidths[label];
+    }
+
+    function showExamineText(zone) {
+      messageBubble.text = "You examine the " + zone.name.toLowerCase() + ". Placeholder text for flavor.";
+      options = []; // Remove options after selecting EXAMINE
+    }
+
+    function showInteractOptions(zone) {
+      messageBubble.text = "You interact with the " + zone.name.toLowerCase() + ". Placeholder text for interaction.";
+      options = []; // Remove options after selecting INTERACT
+    }
+
+    function cancelMessage() {
+      messageBubble = null;
+      options = [];
+    }
   </script>
-</body>
-</html>
+</body

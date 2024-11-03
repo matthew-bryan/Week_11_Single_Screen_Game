@@ -90,8 +90,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Calm the abductee with alien technology", score: 'alien', outcome: "PLACEHOLDER: Alien technology calms the abductee." },
-          { text: "Talk to the abductee and reassure them", score: 'human', outcome: "PLACEHOLDER: You reassure the abductee." }
+          { text: "Pretend they're part of an experiment and take notes", score: 'alien', outcome: "You stand in front of the abductee with a notepad, scribbling nonsense while nodding. They look bewildered and a little terrified—mission successful!" },
+          { text: "Explain that they're on an intergalactic 'cruise'", score: 'human', outcome: "You tell the abductee they're part of an exclusive space cruise. They seem relieved, though they start asking about the on-board buffet." }
         ]
       },
       {
@@ -106,8 +106,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Adjust the light to focus more", score: 'alien', outcome: "PLACEHOLDER: You adjust the light." },
-          { text: "Turn the light away to make the abductee more comfortable", score: 'human', outcome: "PLACEHOLDER: You make the abductee more comfortable." }
+          { text: "Add spooky sound effects to the light", score: 'alien', outcome: "You activate the 'spooky sound' feature, and the light begins to emit eerie, warbling sounds. The abductee shivers and looks around nervously—perfect." },
+          { text: "Dim the light so it's less harsh", score: 'human', outcome: "You turn the brightness down to 'ambient mood.' The abductee smiles, probably grateful they aren't the main course at an alien interrogation barbecue anymore." }
         ]
       },
       {
@@ -122,8 +122,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Enhance the image to see more", score: 'alien', outcome: "PLACEHOLDER: You enhance the image." },
-          { text: "Ignore it and enjoy the peaceful scene", score: 'human', outcome: "PLACEHOLDER: You enjoy the peaceful scene." }
+          { text: "Activate the 'wildlife deterrent' siren", score: 'alien', outcome: "A loud siren blares from the monitor, and the deer on screen looks directly at you before sprinting away. Well, at least you won this round." },
+          { text: "Turn on soothing background music", score: 'human', outcome: "You add some soothing background music to the scene. The deer seems to relax, and the abductee looks a bit more at peace as well. Nature and chill." }
         ]
       },
       {
@@ -138,8 +138,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Zoom in on the dog", score: 'alien', outcome: "PLACEHOLDER: You zoom in on the dog." },
-          { text: "Wave back at the screen", score: 'human', outcome: "PLACEHOLDER: You wave at the screen." }
+          { text: "Add a laser pointer to make the dog chase it", score: 'alien', outcome: "You activate a laser pointer, and the dog immediately pounces, chasing it in circles. The human walker looks thoroughly confused as their dog performs the 'dance of the red dot." },
+          { text: "Add a cheerful caption to the screen", score: 'human', outcome: "You add a caption that reads 'Just your friendly neighborhood surveillance!' The abductee chuckles, and even the dog on the screen seems to appreciate the humor—though it's still staring directly at you." }
         ]
       },
       {
@@ -154,8 +154,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Touch the object to see what happens", score: 'alien', outcome: "PLACEHOLDER: You touch the object." },
-          { text: "Back away slowly", score: 'human', outcome: "PLACEHOLDER: You back away." }
+          { text: "Lick the object to assert dominance", score: 'alien', outcome: "You give the object a quick lick. It tastes like space pennies. The abductee looks horrified, but at least now it’s clear who owns this shiny artifact." },
+          { text: "Back away slowly", score: 'human', outcome: "You decide it's best not to mess with mysterious glowing things. The abductee looks relieved, nodding as if to say, 'Yeah, let's not explode today.'" }
         ]
       },
       {
@@ -170,8 +170,8 @@
         ],
         hasInteracted: false,
         interactChoices: [
-          { text: "Press the flashing button", score: 'alien', outcome: "PLACEHOLDER: You press the button." },
-          { text: "Look for an instruction manual", score: 'human', outcome: "PLACEHOLDER: You look for the manual." }
+          { text: "Flip the lever marked 'Total Mayhem'", score: 'alien', outcome: "You flip the lever, and the ship's alarm immediately blares, accompanied by disco lights and a voice saying, 'Initiating chaos protocol. Good luck!' The abductee looks like they might faint, but you can’t stop grooving." },
+          { text: "Look for an instruction manual", score: 'human', outcome: "You rummage around until you find an instruction manual titled 'So You've Decided to Push Random Buttons.' The abductee looks relieved—at least someone is being sensible." }
         ]
       }
     ];
@@ -183,15 +183,13 @@
     function setup() {
       let canvas = createCanvas(1000, 1000);
       canvas.parent('canvas-container');
-      image(bgImage, 0, 0, width, height); // Draw background once if it's static
       examineWindow = select('#examine-window');
       let scoreDisplay = select('#score-display');
       updateScoreDisplay();
     }
 
     function draw() {
-      clear();
-      image(bgImage, 0, 0, width, height); // Redraw background each frame
+      background(bgImage); // Draw background image
       checkInteractiveZones();
       displayHoverText();
       displayMessageBubble();
@@ -335,7 +333,7 @@
       options = []; // Remove options after selecting EXAMINE
     }
 
-    function showInteractOptions(zone) {
+   function showInteractOptions(zone) {
       if (zone.hasInteracted) return;
 
       options = zone.interactChoices.map(choice => {

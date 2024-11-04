@@ -186,6 +186,10 @@
     }
 
     function setup() {
+      examineWindow = select('#examine-window');
+            let welcomeMessage = "Welcome, Agent! You are the pride of planet U.F.O. (Universal Federation of Observation), and it's your mission to study these strange human creatures. Will you embrace your alien superiority, or be seduced by their quaint customs? Remember, failure means eternal paperwork back home. Click anywhere to begin.";
+      examineWindow.html(welcomeMessage);
+      examineWindow.style('display', 'block');
       let canvas = createCanvas(1000, 1000);
       canvas.parent('canvas-container');
       image(bgImage, 0, 0, width, height); // Draw background once if it's static
@@ -252,6 +256,11 @@
     }
 
     function mousePressed() {
+      
+      if (examineWindow.style('display') === 'block' && examineWindow.html().includes('Welcome, Agent!')) {
+        examineWindow.style('display', 'none');
+        return;
+      }
       if (gameEnded) return;  // Prevent further interactions once the game has ended
       
       if (options.length > 0) {
@@ -397,3 +406,4 @@
   </script>
 </body>
 </html>
+

@@ -14,9 +14,9 @@
       background-color: #f0f0f0;
     }
     #canvas-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      position: relative;
+      width: 1000px;
+      height: 1000px;
     }
     #examine-window {
       position: absolute;
@@ -60,6 +60,7 @@
     let examineWindow;
     let alienScore = 0;
     let humanScore = 0;
+    let gameEnded = false;
 
     const zones = [
       {
@@ -177,24 +178,34 @@
     ];
 
     function preload() {
-      bgImage = loadImage('assets/background.png');
+      bgImage = loadImage('assets/background.png', img => {
+        bgImage = img;
+      }, err => {
+        console.error("Background image failed to load");
+      });
     }
 
     function setup() {
       let canvas = createCanvas(1000, 1000);
       canvas.parent('canvas-container');
+      image(bgImage, 0, 0, width, height); // Draw background once if it's static
       examineWindow = select('#examine-window');
-      let scoreDisplay = select('#score-display');
       updateScoreDisplay();
     }
 
     function draw() {
-      background(bgImage); // Draw background image
-      checkInteractiveZones();
-      displayHoverText();
-      displayMessageBubble();
-      displayOptions();
-      checkEndCondition();
+      if (bgImage) {
+        background(bgImage); // Draw background image if it has loaded
+      } else {
+        background(200); // Placeholder gray background until image loads
+      }
+
+      if (!gameEnded) {
+        checkInteractiveZones();
+        displayHoverText();
+        displayMessageBubble();
+        displayOptions();
+      }
     }
 
     function checkInteractiveZones() {
@@ -241,6 +252,8 @@
     }
 
     function mousePressed() {
+      if (gameEnded) return;  // Prevent further interactions once the game has ended
+      
       if (options.length > 0) {
         let startY = messageBubble.y - 20;
         for (let i = 0; i < options.length; i++) {
@@ -333,7 +346,7 @@
       options = []; // Remove options after selecting EXAMINE
     }
 
-   function showInteractOptions(zone) {
+    function showInteractOptions(zone) {
       if (zone.hasInteracted) return;
 
       options = zone.interactChoices.map(choice => {
@@ -349,6 +362,10 @@
             updateScoreDisplay();
             examineWindow.html(choice.outcome); // Display interaction outcome in examine window
             examineWindow.style('display', 'block');
+            options = []; // Remove options after selecting INTERACT
+            messageBubble = null; // Remove message bubble after interaction
+            
+            checkEndCondition(); // Check if game has ended after interaction
           }
         };
       });
@@ -367,9 +384,14 @@
 
     function checkEndCondition() {
       if (zones.every(zone => zone.hasInteracted)) {
-        let endingMessage = alienScore > humanScore ? "ALIEN ENDING: You embraced your alien nature!" : "HUMAN ENDING: You found a human connection.";
-        examineWindow.html(endingMessage);
+        gameEnded = true;  // Stop further interactions
+        let endingImage = alienScore > humanScore ? 'assets/alien_ending_background.png' : 'assets/human_ending_background.png';
+        bgImage = loadImage(endingImage);
+        
+        // Display ending message
+        examineWindow.html(alienScore > humanScore ? 'You embraced your alien nature!' : 'You found a human connection.');
         examineWindow.style('display', 'block');
+        examineWindow.position(width / 2 - 150, height - 100); // Center bottom of the screen
       }
     }
   </script>

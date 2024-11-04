@@ -389,9 +389,9 @@
         bgImage = loadImage(endingImage);
         
         // Display ending message
-        examineWindow.html(alienScore > humanScore ? 'You embraced your alien nature!' : 'You found a human connection.');
+        examineWindow.html(alienScore > humanScore ? "You embraced your alien nature! The High Council on your home planet is pleased—no, thrilled—with your work. They said something about 'exemplary manipulation of inferior species,' but you just heard 'free vacation to Planet X' and tuned out the rest. The humans may be terrified, but you? You're living the dream." : "You found a human connection. And your reward? Well, the crew thought you'd enjoy the full abductee experience. After all, why just empathize when you can live it? As the straps tighten around your wrists, you realize that maybe making friends with the humans wasn't your brightest idea.");
         examineWindow.style('display', 'block');
-        examineWindow.position(width / 2 - 150, height - 100); // Center bottom of the screen
+        examineWindow.position(width / 2 - 150, height - 300); // Center bottom of the screen with larger text box
       }
     }
   </script>
